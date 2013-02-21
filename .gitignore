@@ -39,7 +39,7 @@ nosetests.xml
 
 # svn & OS X
 .svn
-.DS_STore
+.DS_Store
 
 # eraseme
 *eraseme*
