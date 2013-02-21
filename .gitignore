@@ -37,6 +37,10 @@ nosetests.xml
 # vim backup files
 *~
 
+# svn & OS X
+.svn
+.DS_STore
+
 # eraseme
 *eraseme*
 erase.*
