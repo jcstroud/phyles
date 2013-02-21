@@ -69,9 +69,9 @@ clean :
 prune :
 	$(PYTHON) -c 'exec("import phyles; \
                             import logging; \
-                            logging.basicConfig(level=logging.INFO); \
-                            phyles.prune([\"*~\", \"*.pyc\"], \
-                                         doit=True)")'
+               logging.basicConfig(level=logging.INFO); \
+               phyles.prune([\"*~\", \"*.pyc\", \".*~\"], \
+                            doit=True)")'
 
 scrub : clean prune
 	-rm -rf dist/ build/ $(PACKAGE).egg-info/
