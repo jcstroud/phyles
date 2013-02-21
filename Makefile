@@ -55,7 +55,7 @@ build : all
 pypi-build-docs : $(DOCZIP)
 
 pypi-upload-docs : $(HTMLDIR)
-	python setup.py upload_docs --upload-dir=$(HTMLDIR)
+	python setup.py upload_docs
 
 pypi-upload : all pypi-upload-docs
 	$(PYTHON) setup.py sdist upload

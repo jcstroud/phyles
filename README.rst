@@ -22,11 +22,11 @@ more user friendly, including automatically generated banners,
 automatically documented configuration templates, and graceful
 recovery from configuration errors.
 
-Repository
-----------
+Home Page & Repository
+----------------------
 
-The phyles source code is maintained at github:
-https://github.com/jcstroud/phyles\.
+The phyles home page is http://phyles.bravais.net, and the source
+code is maintained at github: https://github.com/jcstroud/phyles\.
 
 Example
 -------
