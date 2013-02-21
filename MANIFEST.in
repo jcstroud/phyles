@@ -1,0 +1,7 @@
+include README.rst
+include LICENSE.txt
+recursive-include html *.html *.css *.png *.gif *.js *.inv *.txt
+recursive-include docsrc *.png
+include phyles.pdf
+include PackageInfo.cfg
+recursive-include examples *

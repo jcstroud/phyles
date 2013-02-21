@@ -1,0 +1,3 @@
+Barbecue has the same license as phyles
+(http://phyles.bravais.net). A licnese
+should have been included with the source bundle.

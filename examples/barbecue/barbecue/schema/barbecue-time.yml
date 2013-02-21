@@ -1,0 +1,25 @@
+%YAML 1.2
+---
+!!omap
+- dish :
+   - - vegetable kabobs
+     - smoked salmon
+     - brisket
+   - smoked salmon
+   - Dish to cook
+- doneness :
+   - rare : 200
+     medium : 350
+     well-done : 500
+   - medium
+   - How much to cook the dish
+- temperature :
+   - celsius to farenheit
+   - 105
+   - Cooking temperature in °C
+   - 105
+- width :
+   - int
+   - 70
+   - width of report
+   - 70

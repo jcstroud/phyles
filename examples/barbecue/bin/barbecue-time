@@ -1,0 +1,47 @@
+#! /usr/bin/env python
+
+import sys
+import phyles
+import barbecue
+
+__program__ = "barbecue-time"
+__version__ = "0.1b1"
+
+def output_message(message, config):
+  console_width = phyles.get_terminal_size()[0]
+  if config['width'] > console_width:
+    tplt = "Formatting 'width' (%s) bigger than window (%s)"
+    message = tplt % (config['width'], console_width)
+    raise barbecue.FormatError(message)
+
+  message = message.center(config['width'])
+  config['outlet'](message)
+
+def report_cooking(config):
+  t = barbecue.cooking_time(config['doneness'],
+                            config['difficulty'],
+                            config['temperature'])
+
+  message = "Cooking time is %5.2f hr." % t
+  output_message(message, config)
+
+def finish_up(config):
+  hline = "~" * (config['width'] - 4)
+  output_message(hline, config)
+  message = "Done with %s!" % config['dish']
+  output_message(message, config)
+  output_message(hline, config)
+
+def main(config):
+  config['difficulty'] = barbecue.difficulties[config['dish']]
+  config['outlet'] = lambda s: sys.stdout.write(s + "\n")
+  report_cooking(config)
+  finish_up(config)
+
+if __name__ == "__main__":
+  spec = phyles.package_spec(phyles.Undefined, "barbecue",
+                             "schema", "barbecue-time.yml")
+  converters = {'celsius to farenheit': barbecue.celsius_to_farenheit}
+  setup = phyles.set_up(__program__, __version__, spec, converters)
+  phyles.run_main(main, setup['config'],
+                  catchall=barbecue.BarbecueError)
