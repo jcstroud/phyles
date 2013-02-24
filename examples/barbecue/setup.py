@@ -23,10 +23,10 @@ setup(name='barbecue',
       classifiers =[
               'Programming Language :: Python :: 2',
          ],
-      install_requires=["distribute", "phyles >= 0.2.0"],
+      install_requires=["distribute", "phyles >= 0.2"],
       license='LICENSE.txt',
       long_description=open('README.rst').read(),
       packages=find_packages(),
       include_package_data=True,
-      package_data={'': ['*.yml']},
+      package_data={'': ['*/*.yml']},
       scripts=glob.glob(os.path.join('bin', '*')))

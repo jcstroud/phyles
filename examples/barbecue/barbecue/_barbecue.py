@@ -16,7 +16,7 @@ class TemperatureError(BarbecueError):
 
 def cooking_time(doneness, difficulty, T):
     """
-    Return then cooking time given the desired doneness
+    Return the cooking time given the desired doneness
     cooking, the difficulty of cooking, and the temperature.
 
     Args:

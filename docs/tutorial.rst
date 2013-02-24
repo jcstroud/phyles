@@ -247,13 +247,13 @@ and return possibly different values. In cases where they fail,
 :func:`dict.__getitem__` and python types raise three
 kinds of exceptions:
 
-    =====================  ===========================
+    =====================  ============================
      Exception              Raised By
-    =====================  ===========================
-     :class:`KeyError`      :class`dict` item-getting
+    =====================  ============================
+     :class:`KeyError`      :class:`dict` item-getting
      :class:`TypeError`     python types
      :class:`ValueError`    python types
-    =====================  ===========================
+    =====================  ============================
 
 Thus, any python function that takes one and only one parameter
 and raises either a :class:`KeyError`, :class:`TypeError`,
@@ -496,6 +496,7 @@ schema validates a config. Using the running example
 
     import phyles
     import yaml
+
     spec = """
            !!omap
            - dish : 
@@ -547,11 +548,11 @@ detail in the section titled `The Configuration`_.
     wherein configurations are stored are YAML files.
     Phyles facilitates using YAML files for configurations.
     For example the opening, reading, and validating
-    of whiche are automated by the
+    of which are automated by the
     :func:`phyles.Schema.read_config` function.
 
 
-Creating a Config Sample
+Creating a Sample Config
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 An instance of :class:`phyles.Schema` is capable of
@@ -702,7 +703,7 @@ Example Utility
 We now have all of the pieces we need to make a utility
 package, complete with its own library module and
 scripts (also called "executable programs", or just
-"programs).  As part of the phyles source, an example
+"programs").  As part of the phyles source, an example
 called "barbecue" is included in the directory
 called "examples".
 
@@ -825,7 +826,7 @@ depends on the state of the system while the program is running:
              bin/barbecue-time -c test-data/time-config.yml \
                                -o 'width : 10000'
 
-Here, the a message width of 10000 overrides the config file
+Here, a message width of 10000 overrides the config file
 width of 70. This width is much too large to be displayed on any
 normal terminal. The barbecue-time script uses the
 :func:`phyles.get_terminal_size` function to catch the problem
@@ -1018,7 +1019,7 @@ abstraction of functionality that depends on the configuration.
 
        .. code-block:: python
 
-          config['canvas_width'] = lambda: get_terminal_size()[0]
+          config['canv_width'] = lambda: phyles.get_terminal_size()[0]
 
        And then :func:`output_message` could be changed
        accordingly:
@@ -1026,7 +1027,7 @@ abstraction of functionality that depends on the configuration.
        .. code-block:: python
 
           def output_message(message, config):
-            max_width = config['get_canvas_width']()
+            max_width = config['canv_width']()
             if config['width'] > max_width:
               tplt = "Formatting 'width' (%s) bigger than window (%s)"
               message = tplt % (config['width'], max_width)
@@ -1035,7 +1036,7 @@ abstraction of functionality that depends on the configuration.
             message = message.center(config['width'])
             config['outlet'](message)
 
-       Now, since ``config['get_canvas_width']`` can
+       Now, since ``config['canv_width']`` can
        be any function (or "callable"), the backend to which the
        message is sent can be anything, including a console
        or gui element like a :class:`Tkinter.Label`.
@@ -1068,7 +1069,7 @@ the barbecue package.
 
     def cooking_time(doneness, difficulty, T):
         """
-        Return then cooking time given the desired doneness
+        Return the cooking time given the desired doneness
         cooking, the difficulty of cooking, and the temperature.
 
         Args:
@@ -1140,6 +1141,9 @@ it does have some key parts:
       or inherit from it, then they fall under the catchall
       and trigger graceful exit.
 
+      .note:: The `catchall` can also be a tuple of exceptions.
+              See :func:`phyles.run_main`.
+
 
 setup.py
 ~~~~~~~~
@@ -1181,7 +1185,7 @@ arguments of the :func:`setup` function:
           long_description=open('README.rst').read(),
           packages=find_packages(),
           include_package_data=True,
-          package_data={'': ['*.yml']},
+          package_data={'': ['*/*.yml']},
           scripts=glob.glob(os.path.join('bin', '*')))
 
 - ``packages`` -- line 18
@@ -1199,11 +1203,34 @@ arguments of the :func:`setup` function:
 
 - ``package_data`` -- line 20
       The empty string (``''``) means to include files that
-      match the corresponding patterns (``['*yml']``) for
+      match the corresponding patterns (``['*/*.yml']``) for
       **all** packages listed for the ``packages`` keyword
       argument. Here, these packages are found automatically.
-      In this barbecue example ``{'': ['*yml']}`` matches
+      In this barbecue example ``{'': ['*/*.yml']}`` matches
       ``barbecue/schema/barbecue-time.yml``.
+
+      Thus, the pattern ``*/*.yml`` means to match every file
+      ending with ``.yml`` in every sub-directory
+      of the **package** directory (containing the ``__init__.py``
+      file; here ``barbecue``). In other words, the pattern is
+      matched as if it were evaluated from the package directory
+      that contains the ``__init__.py`` file.
+
+      A simple way to check what the pattern will match is
+      to change to the package directory and then
+      execute the ``ls`` command with the pattern, as in
+      the final command here:
+
+      .. code-block:: shell-session
+
+           [command@prompt]% ls barbecue/
+           __init__.py  _barbecue.py  schema
+           [command@prompt]% cd barbecue/
+           [command@prompt]% ls schema/
+           barbecue-time.yml
+           [command@prompt]% ls */*.yml
+           schema/barbecue-time.yml
+     
 
 - ``scripts`` -- line 21
       The value to ``scripts`` says to include all files
@@ -1213,6 +1240,56 @@ arguments of the :func:`setup` function:
       ``glob.glob(os.path.join('bin', '*'))`` evaluates to
       ``[barbecue-time]``.
 
+Phyles and Entry Points
+-----------------------
+
+Compared to ``scripts``, a more robust way to implement programs
+from a python package is to use `entry points`_, which are
+perfectly compatible with phyles:
+
+   - somewhere in **setup.py**
+
+       .. code-block:: python
+
+          # somewhere in call to setuptools.setup()
+          entry_points = {
+             'console_scripts' : [
+                'some_program = my_package:_some_program']}
+
+   - somewhere in **__init__.py**
+
+       .. code-block:: python
+
+          from _my_module import _some_program
+
+   - somewhere in **_my_module.py**
+
+       .. code-block:: python
+
+          class AnticipatedError(Exception):
+            pass
+
+          def some_function(config):
+            # do stuff with config,
+            # interact with user, produce output,
+            # raise AnticipatedError when appropriate, etc.
+            ...
+
+          def _some_program():
+            spec = """
+                   !!omap
+                   - param1 : [str, example 1, parameter 1]
+                   - param2 : [int, 42, parameter 2]
+                   """
+            setup = phyles.set_up('some_program', '0.1.0' spec)
+            phyles.run_main(some_function, setup['config'],
+                                     catchall=AnticipatedError)
+
+       .. note::
+
+            As in the barbecue example, the specification
+            (``spec``) is probably better included as a
+            separate file in the package data.
 
 .. rubric:: Footnotes
 
@@ -1224,8 +1301,6 @@ arguments of the :func:`setup` function:
 .. [#hitch] http://guide.python-distribute.org/creation.html
 
 
-.. _`functional programming`:
-       http://en.wikipedia.org/wiki/Functional_programming
 .. _`YAML omap`: http://yaml.org/type/omap.html
 .. _`YAML null`: http://yaml.org/type/null.html
 .. _`YAML dict`: http://yaml.org/type/dict.html
@@ -1236,3 +1311,4 @@ arguments of the :func:`setup` function:
 .. _`python eggs`: http://goo.gl/9dQEK
 .. _`Sphinx`: http://sphinx-doc.org/
 .. _`reStructuredText`: http://docutils.sourceforge.net/rst.html
+.. _`entry points`: http://goo.gl/Ss8dr

@@ -1,6 +1,6 @@
 # make environment
-PYTHON = /usr/local/bin/python
-ECHO = echo
+PYTHON = %(python)s
+ECHO = %(echo)s
 
 # directories
 
@@ -13,5 +13,5 @@ BUILDDIR = build
 # built html documentation directory
 HTMLDIR = html
 
-# built pdf and zip documentation directory
-DOCDEST = .
+# built pdf documentation directory
+PDFDIR = .

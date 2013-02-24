@@ -1,0 +1,11 @@
+# package info
+PACKAGE = %(package)s
+MAJOR = %(major)s
+MINOR = %(minor)s
+MICRO = %(micro)s
+AUTHOR = %(author)s
+EMAIL = %(email)s
+URL = %(url)s
+LICENSE = %(license)s
+COPYRIGHT = %(copyright)s
+DESCRIPTION = %(description)s

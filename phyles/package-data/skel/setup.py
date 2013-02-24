@@ -17,17 +17,12 @@ setup(name = info['PACKAGE'],
       description = info['DESCRIPTION'],
       license = info['LICENSE'],
       long_description = open('README.rst').read(),
-      packages = [info['PACKAGE']],
-      package_data={'':['*/*.yml', '*/*.zip']},
-      include_package_data=True,
-      requires = ['distribute', 'pyyaml',
-                  'OrderedDict', 'configobj'],
+      packages = [info['PACKAGE']], # or find_packages()
+      package_data = {'':['*/*.*']},
+      include_package_data = True,
+      requires = ['phyles'],
       # test_suite = info['PACKAGE'] + '.tests.test_suite',
       classifiers = [
             'Programming Language :: Python :: 2.6',
             'Programming Language :: Python :: 2.7', ],
-      entry_points = {
-        'console_scripts' : [
-            'phyles-pack-skeleton = phyles._phyles:_pack_skeleton',
-            'phyles-quickstart = phyles._phyles:_quickstart']}
       )

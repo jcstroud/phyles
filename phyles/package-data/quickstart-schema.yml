@@ -1,0 +1,53 @@
+%YAML 1.2
+---
+!!omap
+- package :
+  - str
+  - my_package
+  - null
+- major :
+  - int
+  - 0
+  - Major part of version (major.minor.micro)
+- minor :
+  - int
+  - 1
+  - Minor part of version (major.minor.micro)
+- micro :
+  - int
+  - 0
+  - Micro part of version (major.minor.micro)
+- author :
+  - str
+  - Progra M. Mer
+  - null
+- email :
+  - str
+  - progra.m.mer@example.com
+  - null
+- url :
+  - str
+  - http://my_package.example.com
+  - null
+- license :
+  - str
+  - BSD
+  - null
+- copyright :
+  - str
+  - Copyright (c) 2013, Progra M. Mer;
+    All rights reserved.
+  - null
+- description :
+  - str
+  - A python package the does things
+  - null
+- python :
+  - str
+  - /usr/bin/python
+  - Location of python executable
+- echo :
+  - str
+  - echo
+  - Command for echo
+  - echo

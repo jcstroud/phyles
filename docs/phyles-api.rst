@@ -61,6 +61,9 @@ Functions for Files and Directories
   - `phyles.prune`_
        recursively deletes files matching specified
        unix sytle patterns
+  - `phyles.zipdir`_
+       uses python zipfile package to create a zip archive
+       of a directory
 
 
 Functions for User Interaction

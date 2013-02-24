@@ -6,11 +6,7 @@ Copyright (C) 2013  James C. Stroud
 All rights reserved.
 """
 
-try:
-  import _version
-  __version__ = _version.__version__
-except ImportError:
-  __version__ = None
+from _version import __version__
 
 from _phyles import *
 
@@ -24,4 +20,4 @@ __all__ = ["Undefined", "Schema", "Configuration",
            "banner", "usage", "graceful", "get_home_dir",
            "get_data_path", "prune", "default_argparser",
            "package_spec", "set_up", "run_main",
-           "get_terminal_size"]
+           "get_terminal_size", "zipdir"]

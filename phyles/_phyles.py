@@ -6,6 +6,8 @@ Copyright (C) 2013  James C. Stroud
 All rights reserved.
 """
 
+from _version import __version__
+
 import os
 import sys
 import modulefinder
@@ -17,6 +19,8 @@ import argparse
 import logging
 import glob
 from stat import S_ISREG, ST_CTIME, ST_MODE
+from contextlib import closing
+from zipfile import ZipFile, ZIP_DEFLATED
 
 import pkg_resources
 
@@ -28,6 +32,36 @@ except ImportError:
   from ordereddict import OrderedDict
 
 import yaml
+
+"""
+Name of the package
+"""
+PACKAGE = "phyles"
+
+"""
+Root name of skeleton package directory
+"""
+SKEL = "skel"
+
+"""
+Environment variable for phyles pacakge data directory
+"""
+PHYLES_DATA = "PHYLES_DATA"
+
+"""
+Extension of phyles templates
+"""
+PHYLES_TEMPLATE = "phyles_template"
+
+"""
+Name of phyles package data directory
+"""
+PACKAGE_DATA = "package-data"
+
+"""
+Name of schema for quickstart
+"""
+QUICKSTART_SCHEMA = "quickstart-schema.yml"
 
 """
 String that separates settings, i.e. for overrides.
@@ -51,13 +85,13 @@ class PhylesError(Exception):
 class DummyException(PhylesError):
   pass
 
-class SchemaError(PhylesError):
-  pass
-
 class ConfigError(PhylesError):
   pass
 
 class OptionError(PhylesError):
+  pass
+
+class ArchiveError(PhylesError):
   pass
 
 class Schema(OrderedDict):
@@ -145,7 +179,13 @@ class Configuration(OrderedDict):
     if config is None:
       self.original = OrderedDict()
     else:
-      self.original = OrderedDict(config)
+      try:
+        self.original = OrderedDict(config)
+      except (TypeError, ValueError) as e:
+        tmplt = ("Configuration Error:\n   '%s'\n" +
+                 "Configuration as parsed by pyyaml:\n-----\n%s")
+        msg = tmplt % (e, repr(config))
+        graceful(msg)
     OrderedDict.__init__(self, config)
 
 class Sentinel(object):
@@ -249,12 +289,9 @@ def read_schema(yaml_file, converters=None):
        a :class:`Schema` as described in :func:`load_schema`
     
   """
-  y = open(yaml_file).read()
-  try:
-    loaded = load_schema(y, converters)
-  except SchemaError as e:
-    tmplt = "File named '%s' is not a valid schema:\n    %s"
-    msg = tmplt % (yaml_file, e)
+  with open(yaml_file) as f:
+    y = f.read()
+  loaded = load_schema(y, converters)
   return loaded
 
 def load_schema(spec, converters=None):
@@ -419,7 +456,10 @@ def load_schema(spec, converters=None):
   except ValueError:
     if (len(spec) > 0):
       try:
-        loaded = yaml.load(spec)
+        try :
+          loaded = yaml.load(spec)
+        except yaml.constructor.ConstructorError as e:
+          _schema_error(e)
         loaded = unpack_omap(loaded)
       except AttributeError:
         loaded = unpack_omap(spec)
@@ -433,7 +473,7 @@ def load_schema(spec, converters=None):
     converter = v[0]
     if not (3 <= len(v) <= 4):
       msg = "Item '%s' of specification is not valid." % k
-      raise SchemaError(msg)
+      _schema_error(msg)
     try:
       loaded[k][0] = convs[converter]
     except (TypeError, KeyError):
@@ -448,7 +488,7 @@ def load_schema(spec, converters=None):
         loaded[k][0] = _converter
       elif isinstance(converter, basestring):
         msg = "No such converter: '%s'" % converter
-        raise SchemaError(msg)
+        _schema_error(msg)
       else:
         try:
           iter(converter)
@@ -636,7 +676,7 @@ def validate_config(schema, config):
       converter, example, help_, default = v
     value = config.get(k, default)
     if value is Undefined:
-      msg = "Settings file must specify value for '%s'." % k
+      msg = "Settings file must specify a value for '%s'." % k
       raise ConfigError, msg
     try:
       validated[k] = converter(value)
@@ -650,7 +690,8 @@ def read_cfg(config_file):
     raise ConfigError(msg)
   try:
     msg = 'Problem reading settings file "%s".' % config_file
-    settings = open(config_file).read()
+    with open(config_file) as f:
+      settings = f.read()
   except IOError:
     raise ConfigError(msg)
   cfg = yaml.load(settings)
@@ -769,7 +810,8 @@ def doyn(msg, cmd=None, exc=os.system, outfile=None):
           sys.stdout.write(str(out))
           sys.stdout.write("\n")
         else:
-          open(outfile, "w").write(out)
+          with open(outfile, "w") as f:
+            f.write(out)
       break
     elif yn.strip().lower() == "n":
       yn = False
@@ -808,7 +850,7 @@ def format_error_message(msg, width, pad):
     aline = lead_space + aline.rstrip()
     msg.append(aline)
   msg = "\n".join(msg)
-  msg = '\n'.join(('', err, msg, errbar, ''))
+  msg = '\n'.join(('', err, '', msg, '', errbar, ''))
   return msg
 
 def usage(parser, msg=None, width=WIDTH, pad=PAD):
@@ -1105,6 +1147,15 @@ def run_main(main, config, catchall=DummyException):
   except catchall, e:
     graceful(e)
 
+def _schema_error(e):
+  msg = ("Schema specification error:\n\n" +
+         "-----\n\n%s\n\n-----\n\n" + \
+         "This may be an internal error. " +
+         "If you didn't write the schema\n" +
+         "specification, then please contact " +
+         "the program author.\n") % (e,)
+  graceful(msg)
+
 def set_up(program, version, spec, converters=None):
   """
   Given the name of the program (`program`), the `version`
@@ -1160,16 +1211,18 @@ def set_up(program, version, spec, converters=None):
       4. ``'config'``: the configuration
          as a :class:`Configuration`
   """
-  schema = load_schema(spec, converters=converters)
   parser = default_argparser()
   args = parser.parse_args()
+  try:
+    schema = load_schema(spec, converters=converters)
+  except yaml.constructor.ConstructorError as e:
+    _schema_error(e)
   if args.template:
     print schema.sample_config()
     sys.exit()
   else:
     banner(program, version)
     try:
-      schema = load_schema(spec, converters=converters)
       cfg = read_cfg(args.config)
       if args.override is not None:
         override_cfg = parse_override(args.override)
@@ -1180,7 +1233,8 @@ def set_up(program, version, spec, converters=None):
             msg = "Command line option '%s' for is not valid." % k
             raise ConfigError(msg)
       config = schema.validate_config(cfg)
-    except (SchemaError, ConfigError, OptionError) as e:
+    except (ConfigError, OptionError,
+            yaml.constructor.ConstructorError) as e:
       usage(parser, e)
     return {'argparser': parser,
             'args': args,
@@ -1215,7 +1269,8 @@ def package_spec(env_var, package_name, data_dir, specfile_name):
   except IOError:
      dirpath = get_data_path(env_var, package_name, data_dir)
      filepath = os.path.join(dirpath, specfile_name)
-     result = open(filepath).read()
+     with open(filepath) as f:
+       result = f.read()
   return result
 
 def prune(patterns, doit=False):
@@ -1260,6 +1315,84 @@ def prune(patterns, doit=False):
             logging.exception(e)
             sys.exit(e)
 
+def _pack_skeleton():
+  listing = [(n + "/" if os.path.isdir(n) else n)
+                                 for n in os.listdir(SKEL)]
+  s = "   " + "\n   ".join(listing)
+  print
+  print "Creating zip archive of directory '%s':" % SKEL
+  print
+  print s
+  print
+  zname = SKEL + '.zip'
+  print "New archive is '%s'." % zname
+  zipdir(SKEL, zname)
+  print
+
+def _unpack_skeleton(config):
+   zip_name = SKEL + '.zip'
+   data_dir = get_data_path(PHYLES_DATA, PACKAGE, PACKAGE_DATA)
+   zip_path = os.path.join(data_dir, zip_name)
+   z = ZipFile(zip_path, 'r')
+   last = -(len(PHYLES_TEMPLATE) + 1)
+   print
+   tplt = "Unpacking '%s', archive of directory '%s'."
+   print tplt % (zip_name, SKEL)
+   print
+   for name in z.namelist():
+     print name
+     if name.endswith(PHYLES_TEMPLATE):
+       bytes = z.read(name)
+       name = name[:last]
+       bytes = bytes % config
+       with open(name, 'w') as f:
+         f.write(bytes)
+     else:
+       z.extract(name)
+   print
+     
+
+def _quickstart():
+  program = "phyles-quickstart"
+  spec = package_spec(Undefined, PACKAGE,
+                      PACKAGE_DATA, QUICKSTART_SCHEMA)
+  setup = set_up(program, __version__, spec)
+  run_main(_unpack_skeleton, setup['config'])
+
+def zipdir(basedir, archivename):
+    """
+    Uses python zipfile package to create a zip archive of
+    the directory `basedir` and store the archive to
+    `archivename`.
+
+    Virtually unmodified from http://goo.gl/Ty5k9
+    except that empty directories aren't ignored.
+
+    Args:
+      - `basedir`: directory to zip as :class:`str`
+      - `archivename`: name of zip archive a :class:`str`
+
+    Returns: ``None``
+    """
+
+    if not os.path.isdir(basedir):
+      tplt = "Can't zip a directory that isn't a directory:\n  %s"
+      msg = tplt % basedir
+      raise ArchiveError(msg)
+
+    length_basedir = len(basedir)
+    length_pfx = length_basedir + len(os.sep)
+    with closing(ZipFile(archivename, "w", ZIP_DEFLATED)) as z:
+      for root, dirs, files in os.walk(basedir):
+        if files:
+          for fn in files:
+            absfn = os.path.join(root, fn)
+            zfn = absfn[length_pfx:]
+            z.write(absfn, zfn)
+        else:
+          zrn = root[length_basedir:]
+          z.write(root, zrn)
+
 def __make_license(license_tmplt, license_out, info_module):
   """
   UNSUPPORTED
@@ -1297,6 +1430,9 @@ def __make_license(license_tmplt, license_out, info_module):
       if fp:
         fp.close()
 
-  t = open(license_tmplt).read()
+  
+  with open(license_tmplt) as f:
+    t = f.read()
   s = t % vars(info)
-  open(license_out, "w").write(s)
+  with open(license_out, "w") as f:
+    f.write(s)

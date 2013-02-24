@@ -3,6 +3,6 @@ include LICENSE.txt
 include CHANGES.txt
 recursive-include html *.html *.css *.png *.gif *.js *.inv *.txt
 recursive-include docs *.png
-include phyles.pdf
+include . *.pdf
 include PackageInfo.cfg
 recursive-include examples *
