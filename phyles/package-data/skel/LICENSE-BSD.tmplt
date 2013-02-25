@@ -1,6 +1,6 @@
 License agreement for
 
-     %(PACKAGE)s %(MAJOR)s.%(MINOR)s.%(MICRO)s
+     %(PACKAGE)s %(MAJOR)s.%(MINOR)s.%(MICRO)s%(TAG)s
 
 1. This LICENSE AGREEMENT is between %(AUTHOR)s,
 and the Individual or Organization ("Licensee") accessing and

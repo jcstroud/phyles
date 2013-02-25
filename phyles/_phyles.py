@@ -18,6 +18,7 @@ import re
 import argparse
 import logging
 import glob
+import inspect
 from stat import S_ISREG, ST_CTIME, ST_MODE
 from contextlib import closing
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -500,7 +501,7 @@ def load_schema(spec, converters=None):
             if value in c:
               return value
             else:
-              msg = "Bad value ('%s') for option '%s'." % (i, key)
+              msg = "Bad value ('%s') for option '%s'." % (value, key)
               raise ValueError(msg)
           _converter.choices = tuple(converter)
           loaded[k][0] = _converter
@@ -1330,18 +1331,31 @@ def _pack_skeleton():
   print
 
 def _unpack_skeleton(config):
-   zip_name = SKEL + '.zip'
-   data_dir = get_data_path(PHYLES_DATA, PACKAGE, PACKAGE_DATA)
-   zip_path = os.path.join(data_dir, zip_name)
+   """
+   Unpacks skeleton specified in `config`, which has the
+   following keys:
+
+      - ``zip_name``: Name of the zip file holding the skeleton
+                      template as a zip file
+      - ``data_dir``: Directory holding the skeleton template
+      - ``extension``: File name extension (without the leading '.')
+            Files ending with this extension will
+              1. be formatted with config, as if with the pseduocode
+                 ``file_contents % config``
+              2. have the extension (and leading '.') removed from
+                 the name before being written to the filesystem
+   """
+   zip_path = os.path.join(config['data_dir'],
+                           config['zip_name'])
    z = ZipFile(zip_path, 'r')
-   last = -(len(PHYLES_TEMPLATE) + 1)
+   extension = config['extension']
+   last = -(len(extension) + 1)
    print
-   tplt = "Unpacking '%s', archive of directory '%s'."
-   print tplt % (zip_name, SKEL)
+   print "Unpacking '%s' directory archive." % config['zip_name']
    print
    for name in z.namelist():
-     print name
-     if name.endswith(PHYLES_TEMPLATE):
+     print "  " + name
+     if name.endswith(extension):
        bytes = z.read(name)
        name = name[:last]
        bytes = bytes % config
@@ -1350,14 +1364,189 @@ def _unpack_skeleton(config):
      else:
        z.extract(name)
    print
-     
+
+def map_nested(nested, amap, pop=False):
+  """
+  Maps a mapping object `amap` to a `nested` iterable of keys.
+  If `pop` is ``True``, then the items matching keys in `nested`
+  are popped from `amap`.
+
+  Args: 
+    - `nested`: nested iterable (e.g. :class:`list`)
+    - `amap`: mapping object (e.g. :class:`dict`)
+
+  Kwargs:
+    - `pop`: bool
+ 
+
+  Args: :class:`collections.Iterable`
+
+  Returns: :class:`list`
+
+  >>> nested = ("a", (("b", "c"), "d"), "e")
+  >>> amap = dict(zip("abcde", range(5)))
+  >>> map_nested(nested, amap)
+  [0, [[1, 2], 3], 4]
+  """
+  built = []
+  for n in nested:
+    if (isinstance(n, collections.Iterable) and
+                         not isinstance(n, basestring)):
+      built.append(map_nested(n, amap, pop=pop))
+    else:
+      if pop:
+        built.append(amap.pop(n))
+      else:
+        built.append(amap[n])
+  return built
+
+def flatten(nested):
+  """
+  Flattens an arbitrarily nested iterable (`nested`).
+
+  Taken from http://goo.gl/FfcWA.
+
+  Args:
+    -`nested`: :class:`collections.Iterable`
+
+  Returns: :class:`list`
+  """
+  for el in alist:
+    if (isinstance(el, collections.Iterable) and
+        not isinstance(el, basestring)):
+      for sub in flatten(el):
+        yield sub
+      else:
+        yield el
+
+def mapify(f):
+  """
+  Given a function `f` with an arbitrary set of arguments
+  and keyword arguments, a new function is returned that
+  instead takes as an argument a mapping object (e.g.
+  a :class:`dict`) that has as keys the original arguments
+  and keyword arguments of `f`.
+
+  If f has "kwargs", as in (``def f(**kwargs):``), then items
+  in the mapping object that do not correspond to any arguments
+  or defaults are included in kwargs. See the ``'extra'`` key
+  in the first example in the doctest below.
+
+  Args: a function
+
+  Returns: a function
+
+  >>> amap = {'a': 1, 'b': 2, 'c': 3, 'd': 42,
+  ...         'args': [7, 8],
+  ...         'kwargs': {'bob':39, 'carol':36},
+  ...         'extra': 99}
+  >>> @mapify
+  ... def f(a, (b, c), d=2, *args, **kwargs):
+  ...   print "a=%s  (b=%s  c=%s) c=%s" % (a, b, c, d)
+  ...   print "args are: %s" % (args,)
+  ...   print "kwargs are: %s" % (kwargs,)
+  ...
+  >>> f(amap)
+  a=1  (b=2  c=3) c=42
+  args are: (7, 8)
+  kwargs are: {'bob': 39, 'carol': 36, 'extra': 99}
+  >>> @mapify
+  ... def g(a):
+  ...   print "a is: %s" % (a,)
+  ... 
+  >>> g(amap)
+  a is: 1
+  >>> @mapify
+  ... def h(y=4, *args):
+  ...   print "y is: %s" % (y,)
+  ...   print "args are: %s" % (args,)
+  ... 
+  >>> h(amap)
+  y is: 4
+  args are: (7, 8)
+  """
+  a = inspect.getargspec(f)
+  args = a.args
+  varargs = a.varargs
+  keywords = a.keywords
+  defaults = [] if a.defaults is None else a.defaults
+  first = -len(defaults)
+  default_args = args[first:]
+  def _f(amap):
+    amap = amap.copy()
+    if defaults:
+      for k, v in zip(default_args, defaults):
+        if k not in amap:
+          amap[k] = v
+    _args = map_nested(args, amap, pop=True)
+    if varargs is not None:
+      _args += list(amap.pop(varargs, []))
+    if keywords is None:
+      _keywords = {}
+    else:
+      _keywords = amap.pop(keywords, {})
+      _keywords = _keywords.copy()
+      _keywords.update(amap)
+    return f(*_args, **_keywords)
+  return _f
+
+def _quickstart_main(config):
+  package = config['package']
+  config['zip_name'] = config['archive_dir'] + ".zip"
+  os.mkdir(config['package'])
+  init_path = os.path.join(package, '__init__.py')
+  with open(init_path, "w") as f:
+    version = "%(major)s.%(minor)s.%(micro)s%(tag)s" % config
+    f.write("__version__ = '%s'\n" % version)
+  doc_index_path = os.path.join("docs", "index.rst")
+  _unpack_skeleton(config)
+  with open(doc_index_path, "w") as f:
+    title_line = "%(package)s Documentation" % config
+    title_underline = ("=" * len(title_line))
+    body = """
+           .. Created by phyles-quickstart.
+              Add some items to the toctree.
+
+           %s
+           %s
+
+           %s
+
+           .. toctree::
+              :maxdepth: 2
+              :numbered:
+
+
+           Indices and tables
+           ==================
+
+           * :ref:`genindex`
+           * :ref:`modindex`
+           * :ref:`search`
+           """
+    params = (title_line, title_underline, config['description'])
+    body = textwrap.dedent(body) % params
+    f.write(body[1:])
+
+def _tag(tag):
+  if tag in (None, "None", "none", "NONE"):
+    tag = ''
+  else:
+    tag = str(tag)
+  return tag
 
 def _quickstart():
   program = "phyles-quickstart"
   spec = package_spec(Undefined, PACKAGE,
                       PACKAGE_DATA, QUICKSTART_SCHEMA)
-  setup = set_up(program, __version__, spec)
-  run_main(_unpack_skeleton, setup['config'])
+  converters = {"tag" : _tag}
+  setup = set_up(program, __version__, spec, converters=converters)
+  config = setup['config']
+  config['archive_dir'] = SKEL
+  config['data_dir'] = get_data_path(PHYLES_DATA,
+                                         PACKAGE, PACKAGE_DATA)
+  config['extension'] = PHYLES_TEMPLATE
+  run_main(_quickstart_main, config)
 
 def zipdir(basedir, archivename):
     """

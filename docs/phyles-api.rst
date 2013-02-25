@@ -100,6 +100,11 @@ Functions for a One-Size-Fits-All Runtime
   - `phyles.run_main`_
        trivial try-except block for graceful recovery from
        anticipated types of user error
+  - `phyles.mapify`_
+       function decorator that converts a function taking
+       any arbitrary set of arguments into a funciton taking
+       as a single argument a mapping object keyed with the
+       names of the original arguments
 
 
 API Details

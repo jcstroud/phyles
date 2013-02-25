@@ -6,3 +6,4 @@ recursive-include docs *.png
 include phyles.pdf
 include PackageInfo.cfg
 recursive-include examples *
+recursive-include phyles *.yml *.zip

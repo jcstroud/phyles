@@ -1,6 +1,6 @@
 # make environment
 PYTHON = /usr/local/bin/python
-ECHO = echo
+ECHO = ECHO
 
 # directories
 
@@ -15,3 +15,6 @@ HTMLDIR = html
 
 # built pdf and zip documentation directory
 DOCDEST = .
+
+# name of template file for license
+LICENSE_TEMPLATE = LICENSE-BSD.tmplt

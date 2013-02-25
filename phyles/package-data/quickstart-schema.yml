@@ -3,20 +3,26 @@
 !!omap
 - package :
   - str
-  - my_package
+  - mypackage
   - null
 - major :
   - int
   - 0
-  - Major part of version (major.minor.micro)
+  - Major part of version ([major].[minor].[micro][tag])
 - minor :
   - int
   - 1
-  - Minor part of version (major.minor.micro)
+  - Minor part of version ([major].[minor].[micro][tag])
 - micro :
   - int
   - 0
-  - Micro part of version (major.minor.micro)
+  - Micro part of version ([major].[minor].[micro][tag])
+- tag :
+  - tag
+  - "rc1"
+  - Tag part of version ([major].[minor].[micro][tag]);
+    Use null or None for no tag
+  - null
 - author :
   - str
   - Progra M. Mer
@@ -27,7 +33,7 @@
   - null
 - url :
   - str
-  - http://my_package.example.com
+  - http://mypackage.example.com
   - null
 - license :
   - str
@@ -40,11 +46,16 @@
   - null
 - description :
   - str
-  - A python package the does things
+  - A python package that does things
+  - null
+- license_template :
+  - [LICENSE-BSD.tmplt]
+  - LICENSE-BSD.tmplt
+  - Name of the license template
   - null
 - python :
   - str
-  - /usr/bin/python
+  - /usr/local/bin/python
   - Location of python executable
 - echo :
   - str

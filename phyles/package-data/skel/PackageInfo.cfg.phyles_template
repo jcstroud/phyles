@@ -3,6 +3,7 @@ PACKAGE = %(package)s
 MAJOR = %(major)s
 MINOR = %(minor)s
 MICRO = %(micro)s
+TAG = %(tag)s
 AUTHOR = %(author)s
 EMAIL = %(email)s
 URL = %(url)s

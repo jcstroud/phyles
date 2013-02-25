@@ -8,9 +8,8 @@ import configobj
 
 info = configobj.ConfigObj('PackageInfo.cfg')
 
-
 setup(name = info['PACKAGE'],
-      version = "%(MAJOR)s.%(MINOR)s.%(MICRO)s" % info,
+      version = "%(MAJOR)s.%(MINOR)s.%(MICRO)s%(TAG)s" % info,
       author = info['AUTHOR'],
       author_email = info['EMAIL'],
       url = info['URL'],

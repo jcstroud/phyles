@@ -1,7 +1,7 @@
 include PackageInfo.cfg
 include Makefile.inc
 
-RELEASE = $(MAJOR).$(MINOR).$(MICRO)
+RELEASE = $(MAJOR).$(MINOR).$(MICRO)$(TAG)
 BUNDLE = $(PACKAGE)-$(RELEASE)
 DOCZIP = $(BUNDLE)-docs.zip
 DOCPDF = $(PACKAGE).pdf
@@ -17,7 +17,7 @@ LICENSE.txt :
 	$(PYTHON) -c 'exec("import configobj; \
                             p = configobj.ConfigObj(\"PackageInfo.cfg\", \
                                                     list_values=False); \
-                            t = open(\"LICENSE.tmplt\").read(); \
+                            t = open(\"$(LICENSE_TEMPLATE)\").read(); \
                             s = t % p; \
                             open(\"LICENSE.txt\", \"w\").write(s)")'
 

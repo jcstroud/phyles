@@ -13,5 +13,8 @@ BUILDDIR = build
 # built html documentation directory
 HTMLDIR = html
 
-# built pdf documentation directory
-PDFDIR = .
+# built pdf and zip documentation directory
+DOCDEST = .
+
+# name of template file for license
+LICENSE_TEMPLATE = %(license_template)s
