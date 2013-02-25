@@ -1,1 +1,7 @@
-v0.2.0b4, Feb. 20, 2013 -- Initial release.
+2013-02-20 Initial release 0.2.0b4
+
+2013-02-25 Fixed documentation and also made schema errors
+           fail more gracefully. Also added as yet unsupported
+           phyles-quickstart script and some associated functions.
+           Also added flatten, map_nested functions and mapify
+           decorator. Released 0.2.1
