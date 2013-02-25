@@ -44,3 +44,6 @@ nosetests.xml
 # eraseme
 *eraseme*
 erase.*
+
+# shouldn't make it to repository for phyles
+skel.zip
