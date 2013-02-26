@@ -85,12 +85,12 @@ Following is the example from the tutorial:
 Phyles will automatically generate a documented sample
 config files for users if they run the utility with
 the ``--template`` (or ``-t``) command line option. In the
-tutorial, calling the example script (``barbecue-time``) with
+tutorial, calling the example script (``barbecue-time``) with::
 
       barbecue_time -t
 
-
-produces the following output:
+produces the following output, which is valid for the above
+schema:
 
 .. code-block:: yaml
 
@@ -112,7 +112,7 @@ produces the following output:
       width : 70
 
 
-As one final example, a valid config file for this schema is:
+As one final example, another valid config file for this schema is:
 
 .. code-block:: yaml
 
