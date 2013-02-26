@@ -1,3 +1,7 @@
+2013-02-26 Fixed docs and package_data in example setup.py and also
+           added recursive-include for yaml files in MANIFEST.in.
+           Releeased 0.2.3.
+
 2013-02-25 Changed distribution to include "skel.zip", the zipped
            skeleton template for the as yet unsupported phyles-quickstart.
            Released 0.2.2.

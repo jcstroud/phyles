@@ -1443,12 +1443,12 @@ def mapify(f):
   ...         'extra': 99}
   >>> @mapify
   ... def f(a, (b, c), d=2, *args, **kwargs):
-  ...   print "a=%s  (b=%s  c=%s) c=%s" % (a, b, c, d)
+  ...   print "a=%s  (b=%s  c=%s) d=%s" % (a, b, c, d)
   ...   print "args are: %s" % (args,)
   ...   print "kwargs are: %s" % (kwargs,)
   ...
   >>> f(amap)
-  a=1  (b=2  c=3) c=42
+  a=1  (b=2  c=3) d=42
   args are: (7, 8)
   kwargs are: {'bob': 39, 'carol': 36, 'extra': 99}
   >>> @mapify

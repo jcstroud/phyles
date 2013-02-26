@@ -137,7 +137,7 @@ As a python function, this calculation might take the form:
 
        Returns: cooking time in hours (``float``)
 
-       Raises: ``ValueError`` if the `temperature` is <= 0 °F
+       Raises: ``ValueError`` if the `temperature` is <= 120 °F
 
        >>> round(cooking_time(350, 2, 225), 2)
        3.11
@@ -1145,6 +1145,26 @@ it does have some key parts:
               See :func:`phyles.run_main`.
 
 
+MANIFEST.in
+~~~~~~~~~~~
+
+To ensure that files get included in source distributions
+(i.e. ``python setup.py sdist``), it is important to specify
+them in `MANIFEST.in`_.
+
+.. code-block:: console
+   :linenos:
+
+   include *.txt
+   include *.rst
+   recursive-include barbecue *.yml
+
+- Line 3 means to include all files matching the pattern ``*.yml``
+  in the directory ``barbecue`` and all directories thereing,
+  recursively. To ensure these files are installed from the
+  source distribution, they should also be specified in `setup.py`_.
+
+
 setup.py
 ~~~~~~~~
 
@@ -1185,7 +1205,7 @@ arguments of the :func:`setup` function:
           long_description=open('README.rst').read(),
           packages=find_packages(),
           include_package_data=True,
-          package_data={'': ['*/*.yml']},
+          package_data={'': [os.path.join('*', '*.yml')]},
           scripts=glob.glob(os.path.join('bin', '*')))
 
 - ``packages`` -- line 18
@@ -1203,14 +1223,15 @@ arguments of the :func:`setup` function:
 
 - ``package_data`` -- line 20
       The empty string (``''``) means to include files that
-      match the corresponding patterns (``['*/*.yml']``) for
-      **all** packages listed for the ``packages`` keyword
-      argument. Here, these packages are found automatically.
-      In this barbecue example ``{'': ['*/*.yml']}`` matches
+      match the corresponding patterns (``['*/*.yml']`` for
+      unix-like systems) for **all** packages listed for the
+      ``packages`` keyword argument. Here, these packages are
+      found automatically.  In this barbecue example
+      ``{'': [os.path.join('*', '*.yml')]}`` matches
       ``barbecue/schema/barbecue-time.yml``.
 
-      Thus, the pattern ``*/*.yml`` means to match every file
-      ending with ``.yml`` in every sub-directory
+      Thus, the pattern ``os.path.join('*', '*.yml')`` means to
+      match every file ending with ``.yml`` in every sub-directory
       of the **package** directory (containing the ``__init__.py``
       file; here ``barbecue``). In other words, the pattern is
       matched as if it were evaluated from the package directory
@@ -1230,7 +1251,6 @@ arguments of the :func:`setup` function:
            barbecue-time.yml
            [command@prompt]% ls */*.yml
            schema/barbecue-time.yml
-     
 
 - ``scripts`` -- line 21
       The value to ``scripts`` says to include all files
@@ -1239,6 +1259,7 @@ arguments of the :func:`setup` function:
       library, imported on line 2.  Here,
       ``glob.glob(os.path.join('bin', '*'))`` evaluates to
       ``[barbecue-time]``.
+
 
 Phyles and Entry Points
 -----------------------

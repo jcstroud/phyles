@@ -26,6 +26,9 @@ def cooking_time(doneness, difficulty, T):
 
     Returns: cooking time in hours (float)
 
+    Raises: ``ValueError`` if the `temperature` is <= 120 °F
+
+
     >>> round(cooking_time(350, 2, 225), 2)
     3.11
     """

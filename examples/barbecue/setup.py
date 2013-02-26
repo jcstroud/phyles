@@ -28,5 +28,5 @@ setup(name='barbecue',
       long_description=open('README.rst').read(),
       packages=find_packages(),
       include_package_data=True,
-      package_data={'': ['*/*.yml']},
+      package_data={'': [os.path.join('*', '*.yml')]},
       scripts=glob.glob(os.path.join('bin', '*')))
