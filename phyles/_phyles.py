@@ -1495,12 +1495,15 @@ def _quickstart_main(config):
   package = config['package']
   config['zip_name'] = config['archive_dir'] + ".zip"
   os.mkdir(config['package'])
-  init_path = os.path.join(package, '__init__.py')
+  init_path = os.path.join(package, "__init__.py")
   with open(init_path, "w") as f:
     version = "%(major)s.%(minor)s.%(micro)s%(tag)s" % config
     f.write("__version__ = '%s'\n" % version)
   doc_index_path = os.path.join("docs", "index.rst")
   _unpack_skeleton(config)
+  for dirname in ["_build", "_static", "_templates"]:
+    pth = os.path.join("docs", dirname)
+    os.mkdir(pth)
   with open(doc_index_path, "w") as f:
     title_line = "%(package)s Documentation" % config
     title_underline = ("=" * len(title_line))
