@@ -1432,7 +1432,8 @@ def mapify(f):
   or defaults are included in kwargs. See the ``'extra'`` key
   in the first example in the doctest below.
 
-  Args: a function
+  Args:
+    - `f`:a function
 
   Returns: a function
 
