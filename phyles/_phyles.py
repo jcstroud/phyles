@@ -507,6 +507,19 @@ def load_schema(spec, converters=None):
           loaded[k][0] = _converter
   return loaded
 
+def _ydump(v, newline=False):
+  """
+  This should really only be called with strings numbers.
+  """
+  r = yaml.dump(v, default_flow_style=True,
+                   Dumper=yaml.dumper.SafeDumper)
+  if r.endswith('\n...\n'):
+    r = r[:-4]
+  if not newline:
+    if r.endswith('\n'):
+      r = r[:-1]
+  return r
+
 def sample_config(schema):
   """
   Creates a sample config specification (returned as a :class:`str`)
@@ -570,8 +583,8 @@ def sample_config(schema):
       if hasattr(c, "choices"):
         choices = "One of: " + ", ".join(c.choices)
         rstr.append(wrapper.fill(choices))
-      example = yaml.dump(example)
-      key = yaml.dump(key)
+      key = _ydump(key)
+      example = _ydump(example)
       rstr.append('%s : %s' % (key, example))
       was_help = True
     else:

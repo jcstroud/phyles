@@ -1,3 +1,7 @@
+2013-02-28 Truncated pyyaml dump output to make the sample config
+           more readable.
+           Released 0.2.6.
+
 2013-02-28 Using pyyaml dump to enusure that keys and examples
            are properly encoded for sample config. Fixed some
            minor errors in the documentation.
