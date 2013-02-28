@@ -1,3 +1,8 @@
+2013-02-28 Using pyyaml dump to enusure that keys and examples
+           are properly encoded for sample config. Fixed some
+           minor errors in the documentation.
+           Released 0.2.5.
+
 2013-02-26 Tweaked typos in intro.rst and README.rst
            Releeased 0.2.4.
 

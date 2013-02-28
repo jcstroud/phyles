@@ -570,6 +570,8 @@ def sample_config(schema):
       if hasattr(c, "choices"):
         choices = "One of: " + ", ".join(c.choices)
         rstr.append(wrapper.fill(choices))
+      example = yaml.dump(example)
+      key = yaml.dump(key)
       rstr.append('%s : %s' % (key, example))
       was_help = True
     else:
@@ -1494,16 +1496,32 @@ def mapify(f):
 def _quickstart_main(config):
   package = config['package']
   config['zip_name'] = config['archive_dir'] + ".zip"
-  os.mkdir(config['package'])
-  init_path = os.path.join(package, "__init__.py")
-  with open(init_path, "w") as f:
+  if not os.path.exists(config['package']):
+    os.mkdir(config['package'])
+  version_path = os.path.join(package, "_version.py")
+  with open(version_path, "w") as f:
     version = "%(major)s.%(minor)s.%(micro)s%(tag)s" % config
     f.write("__version__ = '%s'\n" % version)
-  doc_index_path = os.path.join("docs", "index.rst")
+  init_path = os.path.join(package, "__init__.py")
+  with open(init_path, "w") as f:
+    body = """
+           #! /usr/bin/env python
+
+           '''
+           %(package)s: %(description)s
+           %(copyright)s
+           '''
+
+           from _version import __version__
+           """
+    body = textwrap.dedent(body[1:]) % config 
+    f.write(body)
   _unpack_skeleton(config)
   for dirname in ["_build", "_static", "_templates"]:
-    pth = os.path.join("docs", dirname)
-    os.mkdir(pth)
+    if not os.path.exists(dirname):
+      pth = os.path.join("docs", dirname)
+      os.mkdir(pth)
+  doc_index_path = os.path.join("docs", "index.rst")
   with open(doc_index_path, "w") as f:
     title_line = "%(package)s Documentation" % config
     title_underline = ("=" * len(title_line))

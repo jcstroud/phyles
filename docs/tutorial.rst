@@ -1079,6 +1079,8 @@ the barbecue package.
 
         Returns: cooking time in hours (float)
 
+        Raises: ``ValueError`` if the `temperature` is <= 120 °F
+
         >>> round(cooking_time(350, 2, 225), 2)
         3.11
         """
@@ -1160,7 +1162,7 @@ them in `MANIFEST.in`_.
    recursive-include barbecue *.yml
 
 - Line 3 means to include all files matching the pattern ``*.yml``
-  in the directory ``barbecue`` and all directories thereing,
+  in the directory ``barbecue`` and all directories therein,
   recursively. To ensure these files are installed from the
   source distribution, they should also be specified in `setup.py`_.
 
