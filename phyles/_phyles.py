@@ -1506,16 +1506,26 @@ def mapify(f):
     return f(*_args, **_keywords)
   return _f
 
+def preserve_original(apath):
+  if os.path.exists(apath):
+    bak = apath + ".orig"
+    msg = "File '%s' exists. Renaming to '%s'."
+    logging.warning(msg, apath, bak)
+    os.rename(apath, bak)
+
+
 def _quickstart_main(config):
   package = config['package']
   config['zip_name'] = config['archive_dir'] + ".zip"
   if not os.path.exists(config['package']):
     os.mkdir(config['package'])
   version_path = os.path.join(package, "_version.py")
+  preserve_original(version_path)
   with open(version_path, "w") as f:
     version = "%(major)s.%(minor)s.%(micro)s%(tag)s" % config
     f.write("__version__ = '%s'\n" % version)
   init_path = os.path.join(package, "__init__.py")
+  preserve_original(init_path)
   with open(init_path, "w") as f:
     body = """
            #! /usr/bin/env python
@@ -1531,10 +1541,11 @@ def _quickstart_main(config):
     f.write(body)
   _unpack_skeleton(config)
   for dirname in ["_build", "_static", "_templates"]:
-    if not os.path.exists(dirname):
-      pth = os.path.join("docs", dirname)
+    pth = os.path.join("docs", dirname)
+    if not os.path.exists(pth):
       os.mkdir(pth)
   doc_index_path = os.path.join("docs", "index.rst")
+  preserve_original(doc_index_path)
   with open(doc_index_path, "w") as f:
     title_line = "%(package)s Documentation" % config
     title_underline = ("=" * len(title_line))
