@@ -1360,6 +1360,10 @@ def _unpack_skeleton(config):
               2. have the extension (and leading '.') removed from
                  the name before being written to the filesystem
    """
+   config = config.copy()
+   title = " " + config['package'] + " "
+   hline = "=" * (len(title))
+   config['package_header'] = "\n".join([hline, title, hline])
    zip_path = os.path.join(config['data_dir'],
                            config['zip_name'])
    z = ZipFile(zip_path, 'r')
