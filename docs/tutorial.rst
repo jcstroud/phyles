@@ -1143,7 +1143,8 @@ it does have some key parts:
           With proper utilization of `python eggs`_, a
           programmer should find that use of the
           :func:`pkg_resources.resource_string` function
-                is failsafe.
+          is failsafe.
+
   - Lines 10-17
       As seen in the `barbecue-time`_ file (lines 45-46), the
       :class:`BarbecueError` is used as a catchall for anticipated
