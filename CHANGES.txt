@@ -1,5 +1,7 @@
-2013-03-04 Using find_packages() in setup.py in the quickstart
+2013-03-07 Using find_packages() in setup.py in the quickstart
            skeleton template (and also for phyles it self).
+           Added $(VERMODULE) to Makefile dependencies both for
+           phyles and quickstart skeleton template.
 
 2013-03-04 Fixed the top line for the README.rst.phyles_template
            for quickstart.
