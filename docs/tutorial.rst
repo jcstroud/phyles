@@ -392,9 +392,11 @@ in the following way:
 We'll see exactly how to use the ``converters`` :class:`dict`
 in the `example utility`_.
 
-.. note:: The :func:`celsius_to_farenheit` function is defined
-          in the section titled
-          `Conversion by User-Defined Functions`_
+.. note::
+
+    The :func:`celsius_to_farenheit` function is defined
+    in the section titled
+    `Conversion by User-Defined Functions`_
 
 
 Phyles Standard Converters
@@ -441,9 +443,11 @@ These built-in converters provided by phyles are:
   - **slice**: :class:`slice`
     (encoded as a sequence of 1 to 3, see :func:`slice`)
 
-.. note:: Except where indicated, these types are encoded
-          according to the `YAML types`_ specification
-          in a YAML representation of a config.
+.. note::
+
+    Except where indicated, these types are encoded
+    according to the `YAML types`_ specification
+    in a YAML representation of a config.
 
 
 .. _`schema`: `The Schema`_
@@ -631,12 +635,14 @@ may seem a little cumbersome at first, it facilitates the
 adding of new configuration-based behaviors deep within a
 utility and without the need to modify functions to accommodate additional parameters.
 
-.. note:: Not all functions of the utility need to take
-          a :class:`Configuration` object as an argument. Here
-          :func:`cooking_time` still takes three distinct
-          arguments, but the "higher-level"
-          :func:`report_cooking` function takes config.
-          Such design considerations are left to the programmer.
+.. note::
+
+    Not all functions of the utility need to take
+    a :class:`Configuration` object as an argument. Here
+    :func:`cooking_time` still takes three distinct
+    arguments, but the "higher-level"
+    :func:`report_cooking` function takes config.
+    Such design considerations are left to the programmer.
 
 As an example of the utility of a :class:`Configuration` object,
 notice that the message width above is hard-coded to 70 in line 9
@@ -724,11 +730,13 @@ on your shell) from the ``examples/barbecue`` directory:
 
       env PYTHONPATH=".:${PYTHONPATH}" bin/barbecue-time -t
 
-.. note:: The part of the command that modifies ``$PYTHONPATH``
-          allows for running the ``barbecue-time`` executable
-          in-place. Were the barbecue package installed as with
-          ``python setup.py install`` this modificaiton of
-          ``$PYTHONPATH`` would not be necessary.
+.. note::
+
+    The part of the command that modifies ``$PYTHONPATH``
+    allows for running the ``barbecue-time`` executable
+    in-place. Were the barbecue package installed as with
+    ``python setup.py install`` this modificaiton of
+    ``$PYTHONPATH`` would not be necessary.
 
 These commands should produce the following output:
 
@@ -751,9 +759,11 @@ These commands should produce the following output:
     # width of report
     width : 70
 
-.. note:: The example barbecue package can even be installed with
-          ``python setup.py install``, althought it isn't
-          necessary.
+.. note::
+
+    The example barbecue package can even be installed with
+    ``python setup.py install``, althought it isn't
+    necessary.
 
 Within the ``examples/barbecue/test-data`` directory is also a
 config file called ``time-config.yml``. This config file can
@@ -977,10 +987,12 @@ In terms of interacting with phyles, the most critical part of
        keyword argument, and exits gracefully if such
        exceptions arise.
 
-.. note:: These few lines (40-46), along with specifying a schema,
-          are all that is truely needed to interface with phyles
-          and take advantage of the mose useful parts of its
-          functionality.
+.. note::
+
+    These few lines (40-46), along with specifying a schema,
+    are all that is truely needed to interface with phyles
+    and take advantage of the mose useful parts of its
+    functionality.
 
 Like any good program, `barbecue-time`_ has a :func:`main` function:
 
@@ -1126,9 +1138,11 @@ it does have some key parts:
       :func:`phyles.get_data_path` function, which tries to
       find package data with every trick in the book.
 
-      .. note:: With proper utilization of `python eggs`_, a
-                programmer should find that use of the
-                :func:`pkg_resources.resource_string` function
+      .. note::
+
+          With proper utilization of `python eggs`_, a
+          programmer should find that use of the
+          :func:`pkg_resources.resource_string` function
                 is failsafe.
   - Lines 10-17
       As seen in the `barbecue-time`_ file (lines 45-46), the
@@ -1143,8 +1157,10 @@ it does have some key parts:
       or inherit from it, then they fall under the catchall
       and trigger graceful exit.
 
-      .note:: The `catchall` can also be a tuple of exceptions.
-              See :func:`phyles.run_main`.
+      .note::
+
+        The `catchall` can also be a tuple of exceptions.
+        See :func:`phyles.run_main`.
 
 
 MANIFEST.in
