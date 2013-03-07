@@ -1,9 +1,12 @@
+2013-03-04 Using find_packages() in setup.py in the quickstart
+           skeleton template (and also for phyles it self).
+
 2013-03-04 Fixed the top line for the README.rst.phyles_template
            for quickstart.
 
 2013-03-03 Checked for existence of _version.py, __init__.py,
            or index.rst in quickstart, and renamed originals with
-           a warning.
+           a warning. New version is 0.2.7 (not released yet).
 
 2013-02-28 Truncated pyyaml dump output to make the sample config
            more readable.
