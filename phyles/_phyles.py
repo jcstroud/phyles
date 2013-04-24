@@ -930,6 +930,21 @@ def get_home_dir():
                     homeDir = 'C:\\'
     return homeDir
 
+def basic_logger(name, level=logging.INFO):
+  """
+  Returns an instance of :class:`logging.Logger` named `name` with
+  level of `level` (defaults to `logging.INFO`). The format of the
+  messages is "%(asctime)s %(levelname)s: %(message)s".
+  """
+  logger = logging.getLogger(name)
+  logger.setLevel(logging.INFO)
+  ch = logging.StreamHandler()
+  ch.setLevel(level)
+  formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+  ch.setFormatter(formatter)
+  logger.addHandler(ch)
+  return logger
+
 def get_data_path(env_var, package_name, data_dir):
   """
   Returns the path to the data directory. First

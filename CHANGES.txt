@@ -1,3 +1,5 @@
+2013-04-24 Added basic_logger function.
+
 2013-03-07 Using find_packages() in setup.py in the quickstart
            skeleton template (and also for phyles it self).
            Added $(VERMODULE) to Makefile dependencies both for

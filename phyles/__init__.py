@@ -20,4 +20,4 @@ __all__ = ["Undefined", "Schema", "Configuration",
            "banner", "usage", "graceful", "get_home_dir",
            "get_data_path", "prune", "default_argparser",
            "package_spec", "set_up", "run_main", "mapify",
-           "get_terminal_size", "zipdir"]
+           "get_terminal_size", "zipdir", "basic_logger"]
