@@ -934,13 +934,13 @@ def basic_logger(name, level=logging.INFO):
   """
   Returns an instance of :class:`logging.Logger` named `name` with
   level of `level` (defaults to `logging.INFO`). The format of the
-  messages is "%(asctime)s %(levelname)s: %(message)s".
+  messages is "%(levelname)s: %(message)s".
   """
   logger = logging.getLogger(name)
   logger.setLevel(logging.INFO)
   ch = logging.StreamHandler()
   ch.setLevel(level)
-  formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
+  formatter = logging.Formatter("%(levelname)s: %(message)s")
   ch.setFormatter(formatter)
   logger.addHandler(ch)
   return logger
