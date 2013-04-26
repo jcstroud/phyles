@@ -937,7 +937,7 @@ def basic_logger(name, level=logging.INFO):
   messages is "%(levelname)s: %(message)s".
   """
   logger = logging.getLogger(name)
-  logger.setLevel(logging.INFO)
+  logger.setLevel(level)
   ch = logging.StreamHandler()
   ch.setLevel(level)
   formatter = logging.Formatter("%(levelname)s: %(message)s")
