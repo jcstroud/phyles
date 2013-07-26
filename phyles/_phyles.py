@@ -581,7 +581,7 @@ def sample_config(schema):
                                      subsequent_indent="# ")
       rstr.append(wrapper.fill(help_))
       if hasattr(c, "choices"):
-        choices = "One of: " + ", ".join(c.choices)
+        choices = "One of: " + ", ".join([str(_c) for _c in c.choices])
         rstr.append(wrapper.fill(choices))
       key = _ydump(key)
       example = _ydump(example)
