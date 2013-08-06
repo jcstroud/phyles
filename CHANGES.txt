@@ -1,3 +1,7 @@
+2013-08-06 In skel/setup.py, changed 'requires' keyword to
+           setuptools 'install_requires'.
+           New version is 0.2.10 (not released yet).
+
 2013-08-06 Added recursion to last_made(), using the "depth"
            parameter. Released 0.2.9.
 
