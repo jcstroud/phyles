@@ -736,15 +736,7 @@ def read_config(schema, config_file):
   cfg = read_cfg(config_file)
   return validate_config(schema, cfg)
 
-def last_made(dirpath='.', suffix=None):
-  """
-  Returns the most recently created file in `dirpath`. If provided,
-  the newest of the files with the given suffix/suffices is returned.
-
-  The `suffix` parameter is either a single suffix
-  (e.g. ``'.txt'``) or a sequence of suffices
-  (e.g. ``['.txt', '.text']``).
-  """
+def _last_made_helper(dirpath, suffix):
   # get all entries in the directory w/ stats
   entries = [os.path.join(dirpath, fn) for fn in os.listdir(dirpath)]
   entries = [(os.stat(path), path) for path in entries]
@@ -765,11 +757,39 @@ def last_made(dirpath='.', suffix=None):
   entries.sort(reverse=True)
 
   if entries:
-    result = entries[0][1]
+    result = entries[0]
   else:
     result = None
 
   return result
+
+def last_made(dirpath='.', suffix=None, depth=0):
+  """
+  Returns the most recently created file in `dirpath`. If provided,
+  the newest of the files with the given suffix/suffices is returned.
+  This will recurse to `depth`, with `dirpath` being at depth 0 and
+  its children directories being at depth 1, etc. Set `depth` to
+  any value but 0 or a positive integer if recursion should be exauhstive
+  (e.g. ``-1`` or ``None``).
+
+  Returns ``None`` if no files are found that match `suffix`.
+
+  The `suffix` parameter is either a single suffix
+  (e.g. ``'.txt'``) or a sequence of suffices
+  (e.g. ``['.txt', '.text']``).
+  """
+  result = None
+  i = 0
+  for (apath, dirs, files) in os.walk(dirpath):
+    newest = _last_made_helper(apath, suffix)
+    if ((newest is not None) and
+        ((result is None) or (newest[0] > result[0]))):
+      result = newest
+    if (i == depth):
+      break
+    else:
+       i += 1
+  return result[1]
 
 def wait_exec(cmd, instr=None):
   """
