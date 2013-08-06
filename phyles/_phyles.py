@@ -738,8 +738,8 @@ def read_config(schema, config_file):
 
 def last_made(dirpath='.', suffix=None):
   """
-  Returns the most recently created file in `dirpath` If provided,
-  the news of the files with the given suffix or suffices is returned.
+  Returns the most recently created file in `dirpath`. If provided,
+  the newest of the files with the given suffix/suffices is returned.
 
   The `suffix` parameter is either a single suffix
   (e.g. ``'.txt'``) or a sequence of suffices
