@@ -19,7 +19,7 @@ setup(name = info['PACKAGE'],
       packages = find_packages(), # or info['PACKAGE'],
       package_data = {'':[os.path.join('*', '*.*')]},
       include_package_data = True,
-      requires = ['phyles'],
+      install_requires = ['phyles'],
       # test_suite = info['PACKAGE'] + '.tests.test_suite',
       classifiers = [
             'Programming Language :: Python :: 2.6',
