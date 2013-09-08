@@ -1,3 +1,7 @@
+2013-10-07 Added capability for list-optional converters,
+           with accompanying addition in the docs.
+           Released 0.2.10.
+
 2013-08-06 In skel/setup.py, changed 'requires' keyword to
            setuptools 'install_requires'.
            New version is 0.2.10 (not released yet).

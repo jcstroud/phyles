@@ -453,6 +453,63 @@ These built-in converters provided by phyles are:
 .. _`schema`: `The Schema`_
 
 
+List-Optional Converters
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Any converter that is specified as a YAML string object
+can be specified as "list-optional" by enclosing the string
+in angle brackets (``"<"`` and ``">"``).
+For example, the barbecue program
+might take one or more temperatures instead of just a
+single temperature.
+
+.. code-block:: yaml
+    :linenos:
+
+    - temperature :
+        - <celsius to farenheit>
+        - 105
+        - Cooking temperature in °C, or list thereof
+        - 105
+
+In such a case, the following would both be valid key-value
+pairs for ``temperature``.
+
+.. code-block:: yaml
+
+    temperature : 105
+
+.. code-block:: yaml
+
+    temperature : [105, 120]
+
+Note that a converter specified as list-optional will produce a
+list for the key in the configuration, even if the value given in the
+config file not a list. In the former example (``temperatreu : 105``),
+the config would have the value ``[105]`` for the
+key ``"temperature"``.  Thus, the list-optional angle
+brackets can be thought of as meaning "make the value into a list
+if it is not already".
+
+The capability to specify list-optional converters
+does not limit the converter dictionary
+from having keys that are enclosed by angle brackets:
+
+.. code-block:: python
+
+     converters = {'<some converter>': some_converter}
+
+Even a converter named in this way could be list-optional
+in the schema specification:
+
+.. code-block:: yaml
+
+   - a_parameter :
+       - <<some converter>>
+       - value
+       - A particular paramter or list thereof
+
+
 Optional Default Values
 ~~~~~~~~~~~~~~~~~~~~~~~
 

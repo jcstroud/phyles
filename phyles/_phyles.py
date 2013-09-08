@@ -206,6 +206,36 @@ class Sentinel(object):
 
 Undefined = Sentinel("Undefined")
 
+def atype_or_list_of_atype(atype):
+  def _f(things):
+    if atype is list:
+      if isinstance(things, list):
+        if len(things) == 0:
+          things = [things]
+        else:     
+          for t in things:
+            if not isinstance(t, list):
+              things = [things]
+              break
+      else:
+        raise TypeError("Value '%s' is not a list." % (things,))
+    elif isinstance(things, list):
+      try:
+        things = [atype(t) for t in things]
+      except Exception, e:
+        params = (t, atype)
+        msg = "Value '%s' can not be converted with '%s'." % params
+        raise TypeError(msg)
+    else:
+      try:
+        things = [atype(things)]
+      except Exception, e:
+        params = (things, atype)
+        msg = "Value '%s' can not be converted with '%s'." % params
+        raise TypeError(msg)
+    return things
+  return _f
+
 def timestamp(d):
   try:
     t = d.timetuple()[:6]
@@ -488,8 +518,16 @@ def load_schema(spec, converters=None):
         _converter.choices = tuple(converter)
         loaded[k][0] = _converter
       elif isinstance(converter, basestring):
-        msg = "No such converter: '%s'" % converter
-        _schema_error(msg)
+        if converter.startswith("<") and converter.endswith(">"):
+          atype = converter[1:-1]
+          if atype in convs:
+            loaded[k][0] = atype_or_list_of_atype(convs[atype])
+            no_such_converter = False
+        else:
+            no_such_converter = True
+        if no_such_converter:
+          msg = "No such converter: '%s'" % converter
+          _schema_error(msg)
       else:
         try:
           iter(converter)
