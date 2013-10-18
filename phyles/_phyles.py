@@ -187,7 +187,10 @@ class Configuration(OrderedDict):
                  "Configuration as parsed by pyyaml:\n-----\n%s")
         msg = tmplt % (e, repr(config))
         graceful(msg)
-    OrderedDict.__init__(self, config)
+    if config is None:
+      OrderedDict.__init__(self)
+    else:
+      OrderedDict.__init__(self, config)
 
 class Sentinel(object):
   """
@@ -338,7 +341,9 @@ def load_schema(spec, converters=None):
     `spec`:
         Can either be YAML text, a :class:`list` of
         2-:class:`tuples` with unique first elements,
-        or a mapping object (e.g. :class:`dict`).
+        a mapping object (e.g. :class:`dict`),
+        or `None` (which would be equivalent to
+        an empty :class:`dict`.
         If the schema is in a YAML file, then use
         :func:`phyles.read_schema`. The values
         of the items of `spec` are:
@@ -482,6 +487,8 @@ def load_schema(spec, converters=None):
   .. _`YAML types`: http://yaml.org/type/
   .. _`python types`: http://docs.python.org/2/library/types.html
   """
+  if spec is None:
+    spec = {}
   try:
     loaded = Schema(spec)
   except ValueError:
@@ -1245,7 +1252,7 @@ def _schema_error(e):
          "the program author.\n") % (e,)
   graceful(msg)
 
-def set_up(program, version, spec, converters=None):
+def set_up(program, version, spec, converters=None, argparser=None):
   """
   Given the name of the program (`program`), the `version`
   string, the specification for the schema (`spec`;
@@ -1253,7 +1260,8 @@ def set_up(program, version, spec, converters=None):
   for the schema (also described in :func:`load_schema`),
   this function:
 
-    1. sets up the default argparser (see
+    1. sets up the default argparser if the `argparser`
+       keyword argument is `None` or not provided (see
        :func:`default_argparser`)
 
     2. prints the template or banner as appropriate (see
@@ -1286,6 +1294,10 @@ def set_up(program, version, spec, converters=None):
     `coverters`: a :class:`dict` of converters as described
     in :func:`load_schema`
 
+    `argparser`: used as the :class:`argparse.ArgumentParser`
+    if provided; else the :class:`argparse.ArgumentParser`
+    returned by :func:`default_argparser` is used
+
 
   Returns: a :class:`dict` with the keys:
 
@@ -1300,35 +1312,43 @@ def set_up(program, version, spec, converters=None):
       4. ``'config'``: the configuration
          as a :class:`Configuration`
   """
-  parser = default_argparser()
+  if argparser is None:
+    parser = default_argparser()
+  else:
+    parser = argparser
   args = parser.parse_args()
   try:
     schema = load_schema(spec, converters=converters)
   except yaml.constructor.ConstructorError as e:
     _schema_error(e)
-  if args.template:
-    print schema.sample_config()
-    sys.exit()
+  if hasattr(args, "template"):
+    if args.template:
+      print schema.sample_config()
+      sys.exit()
+    else:
+      banner(program, version)
+      try:
+        cfg = read_cfg(args.config)
+        if args.override is not None:
+          override_cfg = parse_override(args.override)
+          for k in override_cfg:
+            if k in schema:
+              cfg[k] = override_cfg[k]
+            else:
+              msg = "Command line option '%s' for is not valid." % k
+              raise ConfigError(msg)
+        config = schema.validate_config(cfg)
+      except (ConfigError, OptionError,
+              yaml.constructor.ConstructorError) as e:
+        usage(parser, e)
   else:
     banner(program, version)
-    try:
-      cfg = read_cfg(args.config)
-      if args.override is not None:
-        override_cfg = parse_override(args.override)
-        for k in override_cfg:
-          if k in schema:
-            cfg[k] = override_cfg[k]
-          else:
-            msg = "Command line option '%s' for is not valid." % k
-            raise ConfigError(msg)
-      config = schema.validate_config(cfg)
-    except (ConfigError, OptionError,
-            yaml.constructor.ConstructorError) as e:
-      usage(parser, e)
-    return {'argparser': parser,
-            'args': args,
-            'schema': schema,
-            'config': config}
+    schema = Schema()
+    config = Configuration()
+  return {'argparser': parser,
+          'args': args,
+          'schema': schema,
+          'config': config}
 
 def package_spec(env_var, package_name, data_dir, specfile_name):
   """

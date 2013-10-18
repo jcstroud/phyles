@@ -1,3 +1,7 @@
+2013-10-18 Added ability to override the default argparse
+           argument parser in set_up(), using the keyword
+           'argparser'. Released 0.2.11.
+
 2013-10-07 Added capability for list-optional converters,
            with accompanying addition in the docs.
            Released 0.2.10.
